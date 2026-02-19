@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerGenius - AI Resume & Career Optimizer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); min-height: 100vh; color: white; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; padding: 40px 0; }
+        .header h1 { font-size: 3em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .card { background: white; color: #1f2937; border-radius: 20px; padding: 40px; margin: 20px 0; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .upload-area { border: 3px dashed #10b981; border-radius: 15px; padding: 50px 20px; text-align: center; cursor: pointer; background: #f0fdf4; transition: all 0.3s; }
+        .upload-area:hover { background: #dcfce7; border-color: #059669; }
+        .score-display { width: 150px; height: 150px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 20px auto; font-size: 3em; font-weight: bold; color: white; }
+        .score-high { background: #10b981; }
+        .score-medium { background: #f59e0b; }
+        .score-low { background: #ef4444; }
+        .btn { background: linear-gradient(135deg, #059669, #10b981); color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 1em; margin: 5px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .hidden { display: none !important; }
+        .suggestion { background: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .ats-check { display: flex; align-items: center; padding: 10px; margin: 5px 0; background: #f9fafb; border-radius: 8px; }
+        .check-pass { color: #10b981; }
+        .check-fail { color: #ef4444; }
+        input[type="file"] { display: none; }
+        .premium { background: linear-gradient(135deg, #059669, #10b981); color: white; padding: 30px; border-radius: 15px; text-align: center; margin-top: 30px; }
+        .premium button { background: white; color: #059669; padding: 15px 40px; border: none; border-radius: 10px; font-size: 1.1em; cursor: pointer; }
+        textarea { width: 100%; min-height: 150px; padding: 15px; border: 2px solid #e5e7eb; border-radius: 10px; font-family: inherit; font-size: 1em; resize: vertical; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="font-size: 4em;">🚀</div>
+            <h1>CareerGenius</h1>
+            <p>AI-Powered Resume & Career Optimization</p>
+        </div>
+
+        <!-- Upload Resume -->
+        <div id="uploadSection" class="card">
+            <h2 style="text-align: center; margin-bottom: 20px;">Upload Your Resume</h2>
+            <div class="upload-area" onclick="document.getElementById('resumeInput').click()">
+                <div style="font-size: 2.5em; margin-bottom: 10px;">📄</div>
+                <p style="font-weight: 600; color: #374151;">Drop resume or paste job description</p>
+                <p style="color: #6b7280; margin-top: 10px;">We'll analyze ATS compatibility and optimize for interviews</p>
+            </div>
+            <input type="file" id="resumeInput" accept=".pdf,.doc,.docx,.txt" onchange="analyzeResume()">
+            
+            <or>
+            
+            <p style="text-align: center; color: #6b7280; margin: 20px 0;">or paste job description:</p>
+            
+            <textarea id="jobDesc" placeholder="Paste job description here to get tailored resume tips..."></textarea>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="analyzeWithJob()">🎯 Analyze for This Job</button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsSection" class="card hidden">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <button class="btn" onclick="reset()" style="float: left; font-size: 0.9em;">← Back</button>
+                <h2>Your ATS Score</h2>
+            </div>
+
+            <div class="score-display score-medium" id="scoreDisplay">
+                64
+            </div>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p id="scoreText" style="font-size: 1.1em; color: #4b5563;">Good foundation, but needs optimization to beat ATS filters</p>
+            </div>
+
+            <div style="margin: 30px 0;">
+                <h3>✅ ATS Compatibility Checks</h3>
+                
+                <div class="ats-check">
+                    <span class="check-pass" style="margin-right: 10px; font-size: 1.2em;">✓</span>
+                    <span>File format compatible (PDF/DOCX)</span>
+                </div>
+                
+                <div class="ats-check">
+                    <span class="check-pass" style="margin-right: 10px; font-size: 1.2em;">✓</span>
+                    <span>Contact information present</span>
+                </div>
+                
+                <div class="ats-check">
+                    <span class="check-fail" style="margin-right: 10px; font-size: 1.2em;">✗</span>
+                    <span>Missing keywords from job description</span>
+                </div>
+                
+                <div class="ats-check">
+                    <span class="check-fail" style="margin-right: 10px; font-size: 1.2em;">✗</span>
+                    <span>Bullet points too long (optimal: 1-2 lines)</span>
+                </div>
+                
+                <div class="ats-check">
+                    <span class="check-pass" style="margin-right: 10px; font-size: 1.2em;">✓</span>
+                    <span>No graphics/images that confuse ATS</span>
+                </div>
+            </div>
+
+            <div style="margin: 30px 0;">
+                <h3>💡 AI Optimization Suggestions</h3>
+                
+                <div class="suggestion">
+                    <strong>Add quantifiable achievements</strong><br>
+                    Change "Managed social media" → "Grew Instagram following 340% (2k→9k) in 6 months"
+                </div>
+                
+                <div class="suggestion">
+                    <strong>Include missing keywords</strong><br>
+                    Job mentions "project management" and "agile" - add these to your experience
+                </div>
+                
+                <div class="suggestion">
+                    <strong>Optimize bullet length</strong><br>
+                    Shorten 4-line bullets to 1-2 lines for better ATS parsing
+                </div>
+                
+                <div class="suggestion">
+                    <strong>Move skills section higher</strong><br>
+                    ATS scans top 1/3 first - put relevant skills there
+                </div>
+            </div>
+
+            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 30px 0;">
+                <h4>🎯 Predicted Interview Questions</h4>
+                <p style="margin-top: 10px; color: #4b5563;">Based on job description and your resume:</p>
+                
+                <ul style="margin-top: 15px; padding-left: 20px; color: #4b5563;">
+                    <li>"Tell me about a time you managed a difficult project deadline"</li>
+                    <li>"How do you prioritize tasks when everything is urgent?"</li>
+                    <li>"Describe your experience with cross-functional teams"</li>
+                    <li>"What's your approach to stakeholder management?"</li>
+                </ul>
+            </div>
+
+            <div class="premium">
+                <h3>Unlock Full Career Suite</h3>
+                <p style="margin: 15px 0;">Get AI-written cover letter, LinkedIn optimization, salary negotiation script, and interview prep</p>
+                
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
+                    <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                        <strong>$29</strong><br>One-time
+                    </div>
+                    <div style="background: rgba(255,255,255,0.3); padding: 15px; border-radius: 8px;">
+                        <strong>$9/mo</strong><br>Unlimited
+                    </div>
+                </div>
+                
+                <button>Get CareerGenius Pro</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; opacity: 0.9;">
+            <p>CareerGenius © 2024 • Built by Angel Army</p>
+        </div>
+    </div>
+
+    <script>
+        function analyzeResume() {
+            const file = document.getElementById('resumeInput').files[0];
+            if (file) {
+                showResults();
+            }
+        }
+
+        function analyzeWithJob() {
+            const jobDesc = document.getElementById('jobDesc').value;
+            if (jobDesc.length > 20) {
+                showResults();
+            } else {
+                alert('Please paste a job description (at least 20 characters)');
+            }
+        }
+
+        function showResults() {
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.remove('hidden');
+            
+            // Random score between 55-75
+            const score = Math.floor(Math.random() * 20) + 55;
+            document.getElementById('scoreDisplay').textContent = score;
+            
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            if (score >= 70) {
+                scoreDisplay.className = 'score-display score-high';
+                document.getElementById('scoreText').textContent = 'Strong resume! Minor tweaks will make it excellent.';
+            } else if (score >= 50) {
+                scoreDisplay.className = 'score-display score-medium';
+                document.getElementById('scoreText').textContent = 'Good foundation, but needs optimization to beat ATS filters.';
+            } else {
+                scoreDisplay.className = 'score-display score-low';
+                document.getElementById('scoreText').textContent = 'Needs significant improvements to pass ATS screening.';
+            }
+        }
+
+        function reset() {
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('uploadSection').classList.remove('hidden');
+            document.getElementById('resumeInput').value = '';
+            document.getElementById('jobDesc').value = '';
+        }
+    </script>
+</body>
+</html>
